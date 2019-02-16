@@ -11,13 +11,14 @@ class Invoice(Base):
     __tablename__ = 'invoices'
 
     id = Column(Integer, primary_key=True)
-    description = Column(String(200))
-    amount = Column(Numeric(precision=10, scale=2))
-    created_at = Column(DateTime, server_default=func.now())
+    description = Column(String(200), nullable=False)
+    amount = Column(Numeric(precision=10, scale=2), nullable=False)
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
     updated_at = Column(
         DateTime,
         server_default=func.now(),
         onupdate=func.now(),
+        nullable=False,
     )
 
     def to_json(self):
