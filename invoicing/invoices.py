@@ -4,9 +4,8 @@ from __future__ import absolute_import
 from decimal import Decimal, InvalidOperation
 
 from flask import Blueprint, jsonify, request
-from sqlalchemy.orm.exc import NoResultFound
 
-from .db import Session
+from . import db
 from .models import Invoice
 
 blueprint = Blueprint('invoices', __name__)
@@ -40,19 +39,16 @@ def create_invoice():
 
     invoice = Invoice(amount=amount, description=description)
 
-    s = Session()
-
-    s.add(invoice)
-    s.commit()
+    with db.connection() as DB:
+        DB.add(invoice)
 
     return jsonify(invoice.to_json()), 201
 
 
 @blueprint.route('/<int:invoice_id>/', methods=['GET'])
 def retrieve_invoice(invoice_id):
-    s = Session()
-
-    invoice = s.query(Invoice).get(invoice_id)
+    with db.connection() as DB:
+        invoice = DB.query(Invoice).get(invoice_id)
 
     if invoice is None:
         return jsonify({'error': 'Not found.'}), 404
@@ -62,8 +58,7 @@ def retrieve_invoice(invoice_id):
 
 @blueprint.route('/', methods=['GET'])
 def list_invoices():
-    s = Session()
-
-    invoices = s.query(Invoice)
+    with db.connection() as DB:
+        invoices = DB.query(Invoice)
 
     return jsonify([i.to_json() for i in invoices])
