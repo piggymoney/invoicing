@@ -22,5 +22,3 @@ def connection():
     except BaseException:
         s.rollback()
         raise
-    finally:
-        s.close()
