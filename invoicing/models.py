@@ -14,4 +14,17 @@ class Invoice(Base):
     description = Column(String(200))
     amount = Column(Numeric(precision=10, scale=2))
     created_at = Column(DateTime, server_default=func.now())
-    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    updated_at = Column(
+        DateTime,
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'description': self.description,
+            'amount': self.amount,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at,
+        }
