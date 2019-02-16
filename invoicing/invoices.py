@@ -6,7 +6,7 @@ from decimal import Decimal, InvalidOperation
 from flask import Blueprint, jsonify, request
 
 from . import db
-from .models import Invoice
+from .models import Invoice, InvoicePayment
 
 blueprint = Blueprint('invoices', __name__)
 
@@ -62,3 +62,63 @@ def list_invoices():
         invoices = DB.query(Invoice)
 
     return jsonify([i.to_json() for i in invoices])
+
+
+@blueprint.route('/<int:invoice_id>/pay/', methods=['POST'])
+def pay_invoice(invoice_id):
+    body = request.json
+
+    try:
+        a = body['amount']
+    except KeyError:
+        return jsonify({'error': "An amount is required."}), 400
+
+    try:
+        amount = float(a)
+    except ValueError:
+        return jsonify({'error': "Amount must be a valid number."}), 400
+
+    with db.connection() as DB:
+        invoice = DB.query(Invoice).get(invoice_id)
+
+        if invoice is None:
+            return jsonify({'error': 'Not found.'}), 404
+
+        if invoice.status == Invoice.PAID:
+            return jsonify({'error': "Cannot pay any invoice which is already "
+                                     "paid"}), 400
+
+        other_payments = DB.query(InvoicePayment) \
+                           .filter(InvoicePayment.invoice_id == invoice_id)
+
+        amount_remaining = invoice.amount - sum(p.amount
+                                                for p in other_payments)
+
+        if amount > amount_remaining:
+            return jsonify({'error': "Cannot pay more than the remaining "
+                                     "amount."}), 400
+
+        payment = InvoicePayment(invoice_id=invoice_id, amount=amount)
+        DB.add(payment)
+
+        if amount_remaining == amount:
+            invoice.status = Invoice.PAID
+
+    return jsonify(invoice.to_json())
+
+
+@blueprint.route('/balance', methods=['GET'])
+def balance():
+    balance = Decimal('0')
+
+    with db.connection() as DB:
+        invoices = DB.query(Invoice)
+
+        for invoice in invoices:
+            for payment in invoice.payments:
+                if payment.amount == invoice.amount:
+                    balance += payment.amount
+                else:
+                    balance -= payment.amount
+
+    return jsonify({'balance': balance})
