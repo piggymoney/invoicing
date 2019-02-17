@@ -107,7 +107,7 @@ def pay_invoice(invoice_id):
     return jsonify(invoice.to_json())
 
 
-@blueprint.route('/balance', methods=['GET'])
+@blueprint.route('/balance/', methods=['GET'])
 def balance():
     balance = Decimal('0')
 
