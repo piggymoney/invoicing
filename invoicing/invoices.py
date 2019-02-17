@@ -13,6 +13,15 @@ blueprint = Blueprint('invoices', __name__)
 
 @blueprint.route('/', methods=['POST'])
 def create_invoice():
+    """Create an invoice.
+
+    The request body requires the following parameters:
+    - description (string): A description for the invoice.
+    - amount (numeric): A number with at most two decimal places.
+
+    Returns a JSON object containing the invoice details.
+
+    """
     body = request.json
 
     try:
@@ -47,6 +56,12 @@ def create_invoice():
 
 @blueprint.route('/<int:invoice_id>/', methods=['GET'])
 def retrieve_invoice(invoice_id):
+    """Retrieve an invoice.
+
+    Returns a JSON object containing the invoice details.
+
+    """
+
     with db.connection() as DB:
         invoice = DB.query(Invoice).get(invoice_id)
 
@@ -58,6 +73,12 @@ def retrieve_invoice(invoice_id):
 
 @blueprint.route('/', methods=['GET'])
 def list_invoices():
+    """List all invoices.
+
+    Returns a JSON object containing a list of all of the invoice details.
+
+    """
+
     with db.connection() as DB:
         invoices = DB.query(Invoice)
 
@@ -66,6 +87,15 @@ def list_invoices():
 
 @blueprint.route('/<int:invoice_id>/pay/', methods=['POST'])
 def pay_invoice(invoice_id):
+    """Make a payment towards an invoice.
+
+    The request body requires the following parameters:
+    - amount (numeric): A number describing the amount to pay. It must be at
+                        most the amount of the invoice.
+
+    Returns a JSON object containing the payment details.
+
+    """
     body = request.json
 
     try:
@@ -109,6 +139,12 @@ def pay_invoice(invoice_id):
 
 @blueprint.route('/balance/', methods=['GET'])
 def balance():
+    """Retrieve the total payments made towards invoices so far.
+
+    Returns a JSON object containing one key, "balance".
+
+    """
+
     balance = Decimal('0')
 
     with db.connection() as DB:
