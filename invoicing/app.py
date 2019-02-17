@@ -18,6 +18,8 @@ def create_app():
     app = Flask('invoicing')
     app.json_decoder = CustomJSONDecoder
 
+    init_db(app)
+
     @app.route('/')
     def index():
         return jsonify({'hello': 'hi'})
