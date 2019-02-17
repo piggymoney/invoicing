@@ -6,10 +6,12 @@ from contextlib import contextmanager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-engine = create_engine("sqlite:///db.sqlite")
-
 Session = sessionmaker()
-Session.configure(bind=engine)
+
+
+def init(path):
+    engine = create_engine("sqlite:///{0}".format(path))
+    Session.configure(bind=engine)
 
 
 @contextmanager

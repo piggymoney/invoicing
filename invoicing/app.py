@@ -4,7 +4,7 @@ from __future__ import absolute_import
 from flask import Flask, jsonify
 from flask.json import JSONDecoder
 
-from . import invoices
+from . import db, invoices
 
 
 class CustomJSONDecoder(JSONDecoder):
@@ -25,3 +25,7 @@ def create_app():
     app.register_blueprint(invoices.blueprint, url_prefix='/invoices')
 
     return app
+
+
+def init_db(app):
+    db.init(app.config.get('DATABASE_PATH', 'db.sqlite'))
