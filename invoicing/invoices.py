@@ -6,8 +6,7 @@ from decimal import Decimal, InvalidOperation
 from flask import Blueprint, jsonify, request
 
 from . import db
-from .models import Invoice, InvoicePayment
-
+from .models import Invoice, InvoicePayment, WebHook
 blueprint = Blueprint('invoices', __name__)
 
 
@@ -83,6 +82,21 @@ def list_invoices():
         invoices = DB.query(Invoice)
 
     return jsonify([i.to_json() for i in invoices])
+
+@blueprint.route('/webhook/', methods=['POST'])
+def checkdatepayment():
+    body = request.json
+
+    bodyurl = body['url']
+
+    webhook = WebHook(url = bodyurl)
+
+    with db.connection() as DB:
+        DB.add(webhook)
+
+    return jsonify(''), 201
+
+
 
 
 @blueprint.route('/<int:invoice_id>/pay/', methods=['POST'])

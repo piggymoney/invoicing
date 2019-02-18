@@ -77,3 +77,10 @@ class InvoicePayment(Base):
             'payment_date': self.payment_date,
             'invoice_id': self.invoice_id,
         }
+
+
+class WebHook(Base):
+    __tablename__ = 'webhook'
+
+    id = Column(Integer, primary_key=True)
+    url = Column(String(200), nullable=False)
