@@ -104,7 +104,7 @@ def pay_invoice(invoice_id):
         return jsonify({'error': "An amount is required."}), 400
 
     try:
-        amount = float(a)
+        amount = Decimal(a)
     except ValueError:
         return jsonify({'error': "Amount must be a valid number."}), 400
 
