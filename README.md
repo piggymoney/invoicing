@@ -6,7 +6,7 @@ This is a small microservice for invoicing. An invoice represents an amount of m
 You can see the requirements of the coding exercise in TASK.md.
 
 ## How to install and run.
-Make sure you have python 3 installed before continuing.
+The folowing instructions will work for Linux and Mac OS X. Make sure you have python 3 installed before continuing.
 
 Go to the root of the directory (the same location as this file) and run the following:
 
