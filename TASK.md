@@ -54,3 +54,5 @@ Whenever an invoice is paid in full, the invoicing microservice should make a `P
         }
 
 Ideally the external endpoint can be configured by the external reporting team by interacting with the API directly, rather than having to contact us once we have deployed the feature.
+
+For testing, you can use the `receiver.py` script as a very simple web server that will print out whatever it receives. It's another flask app and runs in much the same way as the microservice itself.
