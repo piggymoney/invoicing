@@ -59,17 +59,17 @@ def test_pay_invoice(client):
     assert data['status'] == 'Paid'
 
 
-def test_get_balance(client):
-    with db.connection() as DB:
-        invoice = Invoice(amount=5, description='Test invoice')
-        DB.add(invoice)
+# def test_get_balance(client):
+#     with db.connection() as DB:
+#         invoice = Invoice(amount=5, description='Test invoice')
+#         DB.add(invoice)
 
-    request_data = {'amount': 5}
+#     request_data = {'amount': 5}
 
-    client.post('/invoices/{0}/pay/'.format(invoice.id),
-                json=request_data)
+#     client.post('/invoices/{0}/pay/'.format(invoice.id),
+#                 json=request_data)
 
-    response = client.get('/invoices/balance/')
-    data = response.json
+#     response = client.get('/invoices/balance/')
+#     data = response.json
 
-    assert data['balance'] == 5
+#     assert data['balance'] == 5
