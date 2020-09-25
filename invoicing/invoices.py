@@ -137,24 +137,24 @@ def pay_invoice(invoice_id):
     return jsonify(invoice.to_json())
 
 
-@blueprint.route('/balance/', methods=['GET'])
-def balance():
-    """Retrieve the total payments made towards invoices so far.
+# @blueprint.route('/balance/', methods=['GET'])
+# def balance():
+#     """Retrieve the total payments made towards invoices so far.
 
-    Returns a JSON object containing one key, "balance".
+#     Returns a JSON object containing one key, "balance".
 
-    """
+#     """
 
-    balance = Decimal('0')
+#     balance = Decimal('0')
 
-    with db.connection() as DB:
-        invoices = DB.query(Invoice)
+#     with db.connection() as DB:
+#         invoices = DB.query(Invoice)
 
-        for invoice in invoices:
-            for payment in invoice.payments:
-                if payment.amount == invoice.amount:
-                    balance += payment.amount
-                else:
-                    balance -= payment.amount
+#         for invoice in invoices:
+#             for payment in invoice.payments:
+#                 if payment.amount == invoice.amount:
+#                     balance += payment.amount
+#                 else:
+#                     balance -= payment.amount
 
-    return jsonify({'balance': balance})
+#     return jsonify({'balance': balance})
