@@ -1,4 +1,3 @@
-
 from __future__ import absolute_import
 
 from sqlalchemy import (
@@ -13,6 +12,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+
 
 Base = declarative_base()
 
@@ -50,7 +50,6 @@ class Invoice(Base):
         }
 
         amount_remaining = self.amount - sum(p.amount for p in self.payments)
-
         return {
             'id': self.id,
             'description': self.description,
@@ -77,3 +76,10 @@ class InvoicePayment(Base):
             'payment_date': self.payment_date,
             'invoice_id': self.invoice_id,
         }
+
+
+class WebHook(Base):
+    __tablename__ = 'web_hooks'
+
+    id = Column(Integer, primary_key=True)
+    url_endpoint = Column(String(200), nullable=False)

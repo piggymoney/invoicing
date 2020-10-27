@@ -3,10 +3,13 @@ from __future__ import absolute_import
 
 from decimal import Decimal, InvalidOperation
 
+import simplejson as json
+import requests
+
 from flask import Blueprint, jsonify, request
 
 from . import db
-from .models import Invoice, InvoicePayment
+from .models import Invoice, InvoicePayment, WebHook
 
 blueprint = Blueprint('invoices', __name__)
 
@@ -104,7 +107,7 @@ def pay_invoice(invoice_id):
         return jsonify({'error': "An amount is required."}), 400
 
     try:
-        amount = float(a)
+        amount = Decimal(a)
     except ValueError:
         return jsonify({'error': "Amount must be a valid number."}), 400
 
@@ -134,6 +137,17 @@ def pay_invoice(invoice_id):
         if amount_remaining == amount:
             invoice.status = Invoice.PAID
 
+            invoice_payments = DB.query(InvoicePayment) \
+                .filter(InvoicePayment.invoice_id == invoice_id)
+            payments = [ip.to_json() for ip in invoice_payments]
+            invoice_details = invoice.to_json()
+            invoice_details['payments'] = payments
+            data = json.dumps(invoice_details, default=str)
+
+            web_hooks = [w.url for w in DB.query(WebHook)]
+            for url in web_hooks:
+                resp = requests.post(url, data=data)
+
     return jsonify(invoice.to_json())
 
 
@@ -158,3 +172,32 @@ def pay_invoice(invoice_id):
 #                     balance -= payment.amount
 
 #     return jsonify({'balance': balance})
+
+
+@blueprint.route('/web_hook/', methods=['POST'])
+def create_web_hook():
+    """Create a web hook.
+
+    The request body requires the following parameters:
+    - url_endpoint (string): A url endpoint to call.
+
+    Returns a JSON object containing the url endpoint.
+
+    """
+    body = request.json
+
+    try:
+        url_endpoint = body['url_endpoint']
+    except KeyError:
+        return jsonify({'error': "A url_endpoint is required."}), 400
+
+    if not url_endpoint:
+        return jsonify({'error': "url_endpoint cannot be empty."}), 400
+
+    web_hook = WebHook(url_endpoint=url_endpoint)
+
+    with db.connection() as DB:
+        DB.add(web_hook)
+
+    return jsonify(web_hook.to_json()), 201
+
